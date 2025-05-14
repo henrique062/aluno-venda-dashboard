@@ -2,12 +2,25 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase connection
-const supabaseUrl = 'https://tybdysmxmxzwebaoeqj.supabase.co';
+const supabaseUrl = 'https://tybdysmxmxzwebaooeqj.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5YmR5c214bXh6d2ViYW9vZXFqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NjA1MzU4MywiZXhwIjoyMDYxNjI5NTgzfQ.1cPee3mXQujnT28QzfLqfMg5ji2Jvi6JtdZdS9k_WyA';
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: { persistSession: false },
-  global: { headers: { 'x-app-version': '1.0.0' } }
+  auth: { 
+    persistSession: false,
+    autoRefreshToken: false,
+  },
+  global: { 
+    headers: { 
+      'x-app-version': '1.0.0',
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`
+    } 
+  },
+  // Enable debug mode to see logs
+  db: {
+    schema: 'public',
+  }
 });
 
 // Type definition for HotmartEventBodyOrdered

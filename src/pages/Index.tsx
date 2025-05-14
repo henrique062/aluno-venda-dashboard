@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useMemo } from 'react';
 import { supabase, HotmartEventBodyOrdered } from '@/lib/supabase';
 import { toast } from '@/components/ui/use-toast';
@@ -29,16 +30,22 @@ const Index = () => {
 
       if (error) {
         console.error('Error fetching data:', error);
-        throw error;
+        toast({
+          title: 'Erro ao carregar dados',
+          description: `Falha ao buscar dados: ${error.message || "Erro desconhecido"}`,
+          variant: 'destructive',
+        });
+        return;
       }
       
       console.log('Data fetched successfully:', data);
       setData(data || []);
-    } catch (error) {
+      setFilteredData(data || []);
+    } catch (error: any) {
       console.error('Error fetching data:', error);
       toast({
         title: 'Erro ao carregar dados',
-        description: 'Não foi possível carregar os dados do Supabase. Verifique o console para mais detalhes.',
+        description: `Erro inesperado: ${error?.message || "Erro desconhecido"}`,
         variant: 'destructive',
       });
     } finally {
@@ -46,14 +53,19 @@ const Index = () => {
     }
   };
 
-  // Set up realtime subscription
+  // Set up initial data fetch
   useEffect(() => {
-    console.log('Setting up initial data fetch and realtime subscription...');
+    console.log('Setting up initial data fetch...');
     fetchData();
+  }, []);
 
+  // Set up realtime subscription separately
+  useEffect(() => {
+    console.log('Setting up realtime subscription...');
+    
     // Set up realtime subscription
-    const subscription = supabase
-      .channel('hotmart_events_changes')
+    const channel = supabase
+      .channel('schema-db-changes')
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
@@ -62,13 +74,16 @@ const Index = () => {
         console.log('Change received!', payload);
         fetchData(); // Reload all data when any change happens
       })
-      .subscribe((status) => {
-        console.log('Realtime subscription status:', status);
+      .subscribe((status, error) => {
+        console.log('Realtime subscription status:', status, error || '');
+        if (error) {
+          console.error('Realtime subscription error:', error);
+        }
       });
 
     return () => {
       console.log('Cleaning up subscription...');
-      subscription.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, []);
 
@@ -198,10 +213,10 @@ const Index = () => {
       {!isLoading && <DashboardStats data={filteredData} />}
 
       <SearchFilters
-        onSearchChange={setSearchTerm}
+        onSearchChange={handleSearchChange}
         onDateRangeChange={handleDateRangeChange}
         onProductChange={() => {}} // Not implemented - would use this for product-specific filter
-        onStatusChange={setSelectedStatus}
+        onStatusChange={handleStatusChange}
       />
 
       <DataTable data={filteredData} isLoading={isLoading} />
