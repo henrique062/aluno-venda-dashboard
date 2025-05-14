@@ -7,7 +7,7 @@ export const fetchHotmartData = async (): Promise<HotmartEventBodyOrdered[]> => 
     console.log('Fetching data from Supabase...');
     
     const { data, error } = await supabase
-      .from('hotmart_events')
+      .from('hotmarteventbodyordered')
       .select('*')
       .order('purchase_order_date', { ascending: false });
 
@@ -42,7 +42,7 @@ export const setupRealtimeSubscription = (onDataChange: () => void) => {
     .on('postgres_changes', { 
       event: '*', 
       schema: 'public', 
-      table: 'hotmart_events' 
+      table: 'hotmarteventbodyordered' 
     }, (payload) => {
       console.log('Change received!', payload);
       onDataChange(); // Reload data when any change happens

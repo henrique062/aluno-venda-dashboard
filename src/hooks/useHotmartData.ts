@@ -2,9 +2,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { HotmartEventBodyOrdered } from '@/lib/supabase';
 import { fetchHotmartData, setupRealtimeSubscription } from '@/services/hotmartService';
-import { FilterState, applyFilters, countActiveFilters } from '@/utils/hotmartFilters';
+import { applyFilters, countActiveFilters } from '@/utils/hotmartFilters';
 
-export { FilterState } from '@/utils/hotmartFilters';
+// Re-export using 'export type' to fix the TypeScript error
+export type { FilterState } from '@/utils/hotmartFilters';
 
 export const useHotmartData = () => {
   const [data, setData] = useState<HotmartEventBodyOrdered[]>([]);
