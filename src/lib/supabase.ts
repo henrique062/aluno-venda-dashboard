@@ -5,7 +5,10 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = 'https://tybdysmxmxzwebaoeqj.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5YmR5c214bXh6d2ViYW9vZXFqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NjA1MzU4MywiZXhwIjoyMDYxNjI5NTgzfQ.1cPee3mXQujnT28QzfLqfMg5ji2Jvi6JtdZdS9k_WyA';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false },
+  global: { headers: { 'x-app-version': '1.0.0' } }
+});
 
 // Type definition for HotmartEventBodyOrdered
 export interface HotmartEventBodyOrdered {

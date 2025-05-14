@@ -9,6 +9,7 @@ import { ptBR } from 'date-fns/locale';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { DateRange } from 'react-day-picker';
 
 interface SearchFiltersProps {
   onSearchChange: (search: string) => void;
@@ -23,17 +24,28 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   onProductChange,
   onStatusChange,
 }) => {
-  const [orderDateRange, setOrderDateRange] = useState<{ from?: Date; to?: Date }>({});
-  const [approvalDateRange, setApprovalDateRange] = useState<{ from?: Date; to?: Date }>({});
+  // Using DateRange type for compatibility with the Calendar component
+  const [orderDateRange, setOrderDateRange] = useState<DateRange | undefined>();
+  const [approvalDateRange, setApprovalDateRange] = useState<DateRange | undefined>();
 
-  const handleOrderDateSelect = (range: { from?: Date; to?: Date }) => {
+  const handleOrderDateSelect = (range: DateRange | undefined) => {
     setOrderDateRange(range);
-    onDateRangeChange('order', range);
+    // Convert to the expected format for the parent component
+    if (range) {
+      onDateRangeChange('order', { from: range.from, to: range.to });
+    } else {
+      onDateRangeChange('order', {});
+    }
   };
 
-  const handleApprovalDateSelect = (range: { from?: Date; to?: Date }) => {
+  const handleApprovalDateSelect = (range: DateRange | undefined) => {
     setApprovalDateRange(range);
-    onDateRangeChange('approval', range);
+    // Convert to the expected format for the parent component
+    if (range) {
+      onDateRangeChange('approval', { from: range.from, to: range.to });
+    } else {
+      onDateRangeChange('approval', {});
+    }
   };
 
   return (
@@ -51,7 +63,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
           <PopoverTrigger asChild>
             <Button variant="outline" className="justify-start w-full sm:w-auto">
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {orderDateRange.from ? (
+              {orderDateRange?.from ? (
                 orderDateRange.to ? (
                   <>
                     {format(orderDateRange.from, 'dd/MM/yy')} - {format(orderDateRange.to, 'dd/MM/yy')}
@@ -80,7 +92,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
           <PopoverTrigger asChild>
             <Button variant="outline" className="justify-start w-full sm:w-auto">
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {approvalDateRange.from ? (
+              {approvalDateRange?.from ? (
                 approvalDateRange.to ? (
                   <>
                     {format(approvalDateRange.from, 'dd/MM/yy')} - {format(approvalDateRange.to, 'dd/MM/yy')}

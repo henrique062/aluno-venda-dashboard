@@ -59,22 +59,22 @@ const DataTable: React.FC<DataTableProps> = ({ data, isLoading }) => {
           <TableBody>
             {data.map((item, index) => (
               <TableRow key={item.id || index} className="hover:bg-muted/30">
-                <TableCell className="font-medium">{item.buyer_name}</TableCell>
-                <TableCell className="text-sm">{item.buyer_email}</TableCell>
+                <TableCell className="font-medium">{item.buyer_name || 'N/A'}</TableCell>
+                <TableCell className="text-sm">{item.buyer_email || 'N/A'}</TableCell>
                 <TableCell className="text-sm">
-                  {item.buyer_checkout_phone_code} {item.buyer_checkout_phone}
+                  {item.buyer_checkout_phone_code || ''} {item.buyer_checkout_phone || 'N/A'}
                 </TableCell>
-                <TableCell className="text-sm">{item.product_name}</TableCell>
-                <TableCell className="text-sm">{item.purchase_transaction}</TableCell>
-                <TableCell className="text-sm">{formatDate(item.purchase_order_date)}</TableCell>
-                <TableCell className="text-sm">{formatDate(item.purchase_approved_date)}</TableCell>
+                <TableCell className="text-sm">{item.product_name || 'N/A'}</TableCell>
+                <TableCell className="text-sm">{item.purchase_transaction || 'N/A'}</TableCell>
+                <TableCell className="text-sm">{formatDate(item.purchase_order_date || '')}</TableCell>
+                <TableCell className="text-sm">{formatDate(item.purchase_approved_date || '')}</TableCell>
                 <TableCell className="text-sm font-semibold">
-                  {formatCurrency(item.purchase_price_value)}
+                  {formatCurrency(item.purchase_price_value || 0)}
                 </TableCell>
-                <TableCell className="text-sm">{item.purchase_payment_type}</TableCell>
+                <TableCell className="text-sm">{item.purchase_payment_type || 'N/A'}</TableCell>
                 <TableCell>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.purchase_status)}`}>
-                    {item.purchase_status}
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.purchase_status || '')}`}>
+                    {item.purchase_status || 'N/A'}
                   </span>
                 </TableCell>
                 <TableCell className="text-center text-sm">

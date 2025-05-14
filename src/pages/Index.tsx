@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
 import { supabase, HotmartEventBodyOrdered } from '@/lib/supabase';
 import { toast } from '@/components/ui/use-toast';
@@ -20,28 +19,36 @@ const Index = () => {
 
   const fetchData = async () => {
     try {
+      console.log('Fetching data from Supabase...');
+      setIsLoading(true);
+      
       const { data, error } = await supabase
         .from('hotmart_events')
         .select('*')
         .order('purchase_order_date', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+      }
       
+      console.log('Data fetched successfully:', data);
       setData(data || []);
-      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
         title: 'Erro ao carregar dados',
-        description: 'Não foi possível carregar os dados do Supabase.',
+        description: 'Não foi possível carregar os dados do Supabase. Verifique o console para mais detalhes.',
         variant: 'destructive',
       });
+    } finally {
       setIsLoading(false);
     }
   };
 
   // Set up realtime subscription
   useEffect(() => {
+    console.log('Setting up initial data fetch and realtime subscription...');
     fetchData();
 
     // Set up realtime subscription
@@ -55,15 +62,26 @@ const Index = () => {
         console.log('Change received!', payload);
         fetchData(); // Reload all data when any change happens
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Realtime subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up subscription...');
       subscription.unsubscribe();
     };
   }, []);
 
   // Apply filters whenever filter states change
   useEffect(() => {
+    console.log('Applying filters with:', { 
+      searchTerm, 
+      orderDateRange, 
+      approvalDateRange, 
+      selectedStatus,
+      dataLength: data.length
+    });
+    
     let results = data;
 
     // Apply search filter
@@ -71,16 +89,18 @@ const Index = () => {
       const searchLower = searchTerm.toLowerCase();
       results = results.filter(
         item =>
-          item.buyer_name?.toLowerCase().includes(searchLower) ||
-          item.buyer_email?.toLowerCase().includes(searchLower) ||
-          item.product_name?.toLowerCase().includes(searchLower) ||
-          item.purchase_transaction?.toLowerCase().includes(searchLower)
+          (item.buyer_name?.toLowerCase() || '').includes(searchLower) ||
+          (item.buyer_email?.toLowerCase() || '').includes(searchLower) ||
+          (item.product_name?.toLowerCase() || '').includes(searchLower) ||
+          (item.purchase_transaction?.toLowerCase() || '').includes(searchLower)
       );
     }
 
     // Apply order date range filter
     if (orderDateRange.from) {
       results = results.filter(item => {
+        if (!item.purchase_order_date) return false;
+        
         const orderDate = new Date(item.purchase_order_date);
         
         if (orderDateRange.from && orderDateRange.to) {
@@ -131,6 +151,7 @@ const Index = () => {
       results = results.filter(item => item.purchase_status === selectedStatus);
     }
 
+    console.log('Filtered results:', results.length);
     setFilteredData(results);
   }, [data, searchTerm, orderDateRange, approvalDateRange, selectedStatus]);
 
@@ -177,10 +198,10 @@ const Index = () => {
       {!isLoading && <DashboardStats data={filteredData} />}
 
       <SearchFilters
-        onSearchChange={handleSearchChange}
+        onSearchChange={setSearchTerm}
         onDateRangeChange={handleDateRangeChange}
         onProductChange={() => {}} // Not implemented - would use this for product-specific filter
-        onStatusChange={handleStatusChange}
+        onStatusChange={setSelectedStatus}
       />
 
       <DataTable data={filteredData} isLoading={isLoading} />
